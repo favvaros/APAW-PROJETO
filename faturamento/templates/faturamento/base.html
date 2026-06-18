@@ -1,0 +1,261 @@
+{# ARQUIVO: faturamento/templates/faturamento/base.html #}
+{# Crie a pasta faturamento/templates/faturamento/ e coloque este arquivo dentro #}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block titulo %}Sistema de Faturamento{% endblock %}</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --cor-primaria: #1a3a5c;
+      --cor-acento: #2980b9;
+      --cor-fundo: #f0f4f8;
+    }
+
+    body {
+      background-color: var(--cor-fundo);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding-top: 70px;
+    }
+
+    /* Navbar */
+    .navbar-sistema {
+      background: linear-gradient(135deg, var(--cor-primaria) 0%, #2c3e50 100%);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .navbar-brand-icon {
+      font-size: 1.5rem;
+      color: #f39c12;
+    }
+
+    .navbar .nav-link {
+      color: rgba(255,255,255,0.85) !important;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .navbar .nav-link:hover,
+    .navbar .nav-link.active {
+      color: #fff !important;
+    }
+
+    .navbar .nav-link i {
+      margin-right: 4px;
+    }
+
+    /* Cards do dashboard */
+    .card-stat {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card-stat:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+    }
+
+    .card-stat .icon-bg {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    /* Tabelas */
+    .table-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .table th {
+      background-color: var(--cor-primaria);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+    }
+
+    .table td { vertical-align: middle; }
+
+    /* Formulários */
+    .form-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 2rem;
+    }
+
+    .form-label { font-weight: 600; color: #333; }
+
+    /* Mensagens */
+    .alerts-container { position: relative; z-index: 100; }
+
+    /* Botões de ação na tabela */
+    .btn-xs { padding: 0.2rem 0.5rem; font-size: 0.78rem; }
+
+    /* Badge status */
+    .badge-status { font-size: 0.82rem; padding: 0.4em 0.75em; border-radius: 6px; }
+
+    /* Footer */
+    footer { border-top: 1px solid #dee2e6; margin-top: 4rem; }
+
+    /* Detalhe da fatura */
+    .detalhe-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .detalhe-header {
+      background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-acento) 100%);
+      color: #fff;
+      border-radius: 12px 12px 0 0;
+      padding: 1.5rem 2rem;
+    }
+  </style>
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-sistema fixed-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2 text-white fw-bold" href="{% url 'dashboard' %}">
+      <i class="bi bi-receipt-cutoff navbar-brand-icon"></i>
+      Faturamento
+    </a>
+    <button class="navbar-toggler border-light" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav me-auto gap-1">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active fw-bold{% endif %}"
+             href="{% url 'dashboard' %}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'cliente' in request.resolver_match.url_name %}active fw-bold{% endif %}"
+             href="{% url 'cliente_lista' %}">
+            <i class="bi bi-people"></i> Clientes
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'fatura' in request.resolver_match.url_name %}active fw-bold{% endif %}"
+             href="{% url 'fatura_lista' %}">
+            <i class="bi bi-file-earmark-text"></i> Faturas
+          </a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-center gap-2">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'cliente_criar' %}">
+            <i class="bi bi-person-plus"></i> Novo Cliente
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'fatura_criar' %}">
+            <i class="bi bi-plus-circle"></i> Nova Fatura
+          </a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle fs-5"></i>
+            <span class="d-none d-lg-inline">{{ user.username }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><span class="dropdown-item-text text-muted small">Logado como <strong>{{ user.username }}</strong></span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-right"></i> Sair
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endif %}
+
+<!-- MENSAGENS -->
+{% if messages %}
+<div class="container mt-3 alerts-container">
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+    {% if msg.tags == 'success' %}<i class="bi bi-check-circle-fill me-2"></i>
+    {% elif msg.tags == 'error' or msg.tags == 'danger' %}<i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {% elif msg.tags == 'warning' %}<i class="bi bi-exclamation-circle-fill me-2"></i>
+    {% else %}<i class="bi bi-info-circle-fill me-2"></i>{% endif %}
+    {{ msg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- CONTEÚDO PRINCIPAL -->
+<main class="container my-4">
+  {% block conteudo %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+{% if user.is_authenticated %}
+<footer class="py-3 mt-5">
+  <div class="container text-center text-muted small">
+    <i class="bi bi-receipt-cutoff"></i>
+    Sistema de Controle de Faturamento &mdash; {{ user.username }}
+    &nbsp;|&nbsp;
+    <a href="{% url 'logout' %}" class="text-muted text-decoration-none">Sair</a>
+  </div>
+</footer>
+{% endif %}
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Validação Frontend Global -->
+<script>
+  // Auto-fechar alertas após 5 segundos
+  document.querySelectorAll('.alert.fade.show').forEach(function(alertEl) {
+    setTimeout(function() {
+      var bsAlert = bootstrap.Alert.getOrCreateInstance(alertEl);
+      if (bsAlert) bsAlert.close();
+    }, 5000);
+  });
+
+  // Validação de formulários Bootstrap
+  (function() {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(function(form) {
+      form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

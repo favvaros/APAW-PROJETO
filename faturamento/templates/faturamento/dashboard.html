@@ -1,0 +1,149 @@
+{# ARQUIVO: faturamento/templates/faturamento/dashboard.html #}
+
+{% extends 'faturamento/base.html' %}
+{% block titulo %}Dashboard — Sistema de Faturamento{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 fw-bold mb-0">
+      <i class="bi bi-speedometer2 text-primary me-2"></i>Dashboard
+    </h1>
+    <p class="text-muted mb-0 small">Visão geral do sistema</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'cliente_criar' %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-person-plus me-1"></i> Novo Cliente
+    </a>
+    <a href="{% url 'fatura_criar' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-circle me-1"></i> Nova Fatura
+    </a>
+  </div>
+</div>
+
+<!-- CARDS DE ESTATÍSTICAS -->
+<div class="row g-4 mb-4">
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card card-stat p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-bg bg-primary bg-opacity-10">
+          <i class="bi bi-people-fill text-primary"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-semibold text-uppercase">Clientes</div>
+          <div class="fs-2 fw-bold text-dark">{{ total_clientes }}</div>
+        </div>
+      </div>
+      <a href="{% url 'cliente_lista' %}" class="stretched-link"></a>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card card-stat p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-bg bg-info bg-opacity-10">
+          <i class="bi bi-file-earmark-text-fill text-info"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-semibold text-uppercase">Total Faturas</div>
+          <div class="fs-2 fw-bold text-dark">{{ total_faturas }}</div>
+        </div>
+      </div>
+      <a href="{% url 'fatura_lista' %}" class="stretched-link"></a>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card card-stat p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-bg bg-warning bg-opacity-10">
+          <i class="bi bi-clock-history text-warning"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-semibold text-uppercase">Pendentes</div>
+          <div class="fs-2 fw-bold text-warning">{{ qtd_pendentes }}</div>
+          <div class="small text-muted">R$ {{ soma_pendentes|floatformat:2 }}</div>
+        </div>
+      </div>
+      <a href="{% url 'fatura_lista' %}?status=pendente" class="stretched-link"></a>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card card-stat p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-bg bg-success bg-opacity-10">
+          <i class="bi bi-check-circle-fill text-success"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-semibold text-uppercase">Pagas</div>
+          <div class="fs-2 fw-bold text-success">{{ qtd_pagas }}</div>
+          <div class="small text-muted">R$ {{ soma_pagas|floatformat:2 }}</div>
+        </div>
+      </div>
+      <a href="{% url 'fatura_lista' %}?status=paga" class="stretched-link"></a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ÚLTIMAS FATURAS -->
+<div class="card border-0 shadow-sm rounded-3">
+  <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+    <h5 class="fw-bold mb-0">
+      <i class="bi bi-clock-history text-secondary me-2"></i>Últimas Faturas Emitidas
+    </h5>
+    <a href="{% url 'fatura_lista' %}" class="btn btn-sm btn-outline-secondary">
+      Ver todas <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+  </div>
+  <div class="card-body p-0">
+    {% if ultimas_faturas %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th class="ps-4">#</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fatura in ultimas_faturas %}
+          <tr>
+            <td class="ps-4 text-muted">#{{ fatura.pk }}</td>
+            <td class="fw-semibold">{{ fatura.cliente.nome }}</td>
+            <td>{{ fatura.data_emissao|date:"d/m/Y" }}</td>
+            <td class="fw-semibold">R$ {{ fatura.valor|floatformat:2 }}</td>
+            <td>
+              <span class="badge badge-status bg-{{ fatura.status_badge }}">
+                {{ fatura.get_status_display }}
+              </span>
+            </td>
+            <td class="text-center">
+              <a href="{% url 'fatura_detalhe' fatura.pk %}" class="btn btn-xs btn-outline-primary">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-file-earmark-x fs-1 d-block mb-2 opacity-50"></i>
+      Nenhuma fatura emitida ainda.
+      <br>
+      <a href="{% url 'fatura_criar' %}" class="btn btn-primary btn-sm mt-3">
+        <i class="bi bi-plus-circle me-1"></i> Emitir primeira fatura
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

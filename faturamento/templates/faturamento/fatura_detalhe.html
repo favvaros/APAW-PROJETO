@@ -1,0 +1,65 @@
+{# ARQUIVO: faturamento/templates/faturamento/fatura_detalhe.html #}
+{% extends 'faturamento/base.html' %}
+{% block titulo %}Detalhes da Fatura #{{ fatura.pk }} — Sistema de Faturamento{% endblock %}
+
+{% block conteudo %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    
+    <div class="mb-3">
+      <a href="{% url 'fatura_lista' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Voltar para Lista
+      </a>
+    </div>
+
+    <div class="detalhe-card">
+      <div class="detalhe-header d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="h4 mb-0 fw-bold">Fatura #{{ fatura.pk }}</h3>
+          <small class="text-white-50">Emitida em {{ fatura.data_emissao|date:"d/m/Y" }}</small>
+        </div>
+        <span class="badge bg-{{ fatura.status_badge }} fs-6">
+          {{ fatura.get_status_display }}
+        </span>
+      </div>
+      
+      <div class="card-body p-4">
+        <div class="row mb-4">
+          <div class="col-sm-6">
+            <h6 class="text-muted text-uppercase small fw-bold mb-2">Dados do Cliente</h6>
+            <p class="mb-1 fs-5 fw-semibold">{{ fatura.cliente.nome }}</p>
+            <p class="mb-1"><i class="bi bi-envelope text-muted me-1"></i> {{ fatura.cliente.email }}</p>
+            <p class="mb-0"><i class="bi bi-card-text text-muted me-1"></i> {{ fatura.cliente.cpf_cnpj_formatado }}</p>
+          </div>
+          <div class="col-sm-6 text-sm-end mt-4 mt-sm-0">
+            <h6 class="text-muted text-uppercase small fw-bold mb-2">Valor Total</h6>
+            <div class="display-6 fw-bold text-dark">R$ {{ fatura.valor|floatformat:2 }}</div>
+          </div>
+        </div>
+
+        <hr class="text-muted">
+
+        <div class="mb-4">
+          <h6 class="text-muted text-uppercase small fw-bold mb-2">Observações</h6>
+          {% if fatura.observacoes %}
+            <div class="bg-light p-3 rounded border">
+              {{ fatura.observacoes|linebreaks }}
+            </div>
+          {% else %}
+            <p class="text-muted fst-italic">Nenhuma observação registrada.</p>
+          {% endif %}
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <a href="{% url 'fatura_editar' fatura.pk %}" class="btn btn-primary">
+            <i class="bi bi-pencil me-1"></i> Editar Fatura
+          </a>
+          <a href="{% url 'fatura_excluir' fatura.pk %}" class="btn btn-outline-danger">
+            <i class="bi bi-trash me-1"></i> Excluir
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
